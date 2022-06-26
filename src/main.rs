@@ -1,7 +1,7 @@
 use std::process::{Command, Stdio};
 use std::str;
 
-fn main() {
+fn get_diff_files() -> String {
     let child = Command::new("git")
         .args("diff --cached --name-only --diff-filter=ACM".split(' '))
         .stdout(Stdio::piped())
@@ -12,10 +12,37 @@ fn main() {
         .expect("failed to wait on child");
 
     assert!(output.status.success());
-    //println!("{:?}", output.stdout);
     let s = match str::from_utf8(&output.stdout) {
         Ok(v) => v,
         Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
     };
-    println!("result: {}", s);
+    strip_trailing_newline(s).to_string()
+}
+
+fn loop_files(files:Vec<&str>) {
+    println!("{:?}", files);
+    for file in files {
+        println!("file: {}|||", file);
+        let (_, extension) = file.rsplit_once('.').unwrap();
+        if extension != "rb" {
+            continue
+        }
+        
+    }
+}
+
+fn strip_trailing_newline(input: &str) -> &str {
+    input
+        .strip_suffix("\r\n")
+        .or(input.strip_suffix("\n"))
+        .unwrap_or(input)
+}
+
+fn main() {
+    let s = get_diff_files();
+    loop_files(s.split("\n").collect::<Vec<&str>>());
+    /*
+    let files_diff = s.split("\n").collect::<Vec<&str>>();
+    println!("{:?}", files_diff);
+    */
 }
