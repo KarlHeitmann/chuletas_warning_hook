@@ -38,6 +38,7 @@ pub fn get_diff_file(file: &str) -> String {
     strip_trailing_newline(s).to_string()
 }
 
+
 fn strip_trailing_newline(input: &str) -> &str {
     input
         .strip_suffix("\r\n")
