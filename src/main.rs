@@ -92,11 +92,11 @@ fn loop_files(files:Vec<&str>) -> Results {
         if extension != "rb" {
             println!("Continue because {} it is not a ruby file", file);
             continue;
-        }
+        } // use matcher
         let diff_data = io::get_diff_file(file);
 
         let r = analyze(diff_data.split("\n").collect::<Vec<&str>>());
-        if r.is_empty() { continue ; }
+        if r.is_empty() { continue ; } // use matcher
 
         results.add_offense(file, r);
     }
@@ -105,16 +105,17 @@ fn loop_files(files:Vec<&str>) -> Results {
 }
 
 fn show_offenses(results: Results) {
-    if results.is_empty() { return ; }
+    if results.is_empty() { return ; } // use matcher
     println!("{}", results);
 }
 
 fn main() {
     let s = io::get_diff_files();
-    if s == "" { return }
+    if s == "" { return } // use matcher
 
     let res = loop_files(s.split("\n").collect::<Vec<&str>>());
     show_offenses(res);
+    std::process::exit(1);
 }
 
 
