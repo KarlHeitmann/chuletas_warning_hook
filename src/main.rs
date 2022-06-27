@@ -2,14 +2,11 @@ use std::collections::HashMap;
 use std::fmt;
 
 mod io;
-
-struct Offenses {
-    data: HashMap<String, i32>
-}
+mod offenses;
 
 struct Results {
-    // data: Option<HashMap<String, Offenses>>
-    data: HashMap<String, Offenses>
+    // data: Option<HashMap<String, offenses::Offenses>>
+    data: HashMap<String, offenses::Offenses>
 }
 
 impl Results {
@@ -17,21 +14,8 @@ impl Results {
         // self.data.unwrap().is_empty()
         self.data.is_empty()
     }
-    fn add_offense(& mut self, file: &str, offense: Offenses) {
+    fn add_offense(& mut self, file: &str, offense: offenses::Offenses) {
         self.data.insert(file.to_string(), offense);
-    }
-}
-
-impl Offenses {
-    fn add_offense(& mut self, offense: &str) {
-        if self.data.contains_key(&offense.to_string()) {
-            self.data.insert(offense.to_string(), self.data[&offense.to_string()] + 1);
-        } else {
-            self.data.insert(offense.to_string(), 1);
-        }
-    }
-    fn is_empty(&self) -> bool {
-        self.data.is_empty()
     }
 }
 
@@ -45,20 +29,10 @@ impl fmt::Display for Results {
     }
 }
 
-impl fmt::Display for Offenses {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut cadena = format!("");
-        for (offense, times) in &self.data {
-            cadena = format!("{}  {} - {}\n", cadena, offense, times)
-        }
-        write!(f, "{}", cadena)
-    }
-}
-
-fn analyze(diffs:Vec<&str>) -> Offenses {
+fn analyze(diffs:Vec<&str>) -> offenses::Offenses {
 //fn analyze(diffs:Vec<&str>) -> HashMap<&&str, i32> {
     let offensive_words = vec!["XXX_ME", "HACK_ME", "puts", "binding.pry"];
-    let mut offenses = Offenses { data: HashMap::new() };
+    let mut offenses = offenses::Offenses { data: HashMap::new() };
 
     let (possible_new, _) = diffs[1].split_once(' ').unwrap();
     let start_point = if possible_new == "new" {
