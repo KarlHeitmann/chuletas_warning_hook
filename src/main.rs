@@ -3,13 +3,13 @@ use std::fmt;
 
 mod io;
 
-struct Offense {
+struct Offenses {
     data: HashMap<String, i32>
 }
 
 struct Results {
-    // data: Option<HashMap<String, Offense>>
-    data: HashMap<String, Offense>
+    // data: Option<HashMap<String, Offenses>>
+    data: HashMap<String, Offenses>
 }
 
 impl Results {
@@ -17,12 +17,12 @@ impl Results {
         // self.data.unwrap().is_empty()
         self.data.is_empty()
     }
-    fn add_offense(& mut self, file: &str, offense: Offense) {
+    fn add_offense(& mut self, file: &str, offense: Offenses) {
         self.data.insert(file.to_string(), offense);
     }
 }
 
-impl Offense {
+impl Offenses {
     fn add_offense(& mut self, offense: &str) {
         if self.data.contains_key(&offense.to_string()) {
             self.data.insert(offense.to_string(), self.data[&offense.to_string()] + 1);
@@ -37,7 +37,7 @@ impl Offense {
 
 impl fmt::Display for Results {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut cadena = format!("");
+        let mut cadena = format!("OFFENSES FOUND:\n");
         for (file, offense) in &self.data {
             cadena = format!("{}{}\n{}\n", cadena, file, offense)
         }
@@ -45,7 +45,7 @@ impl fmt::Display for Results {
     }
 }
 
-impl fmt::Display for Offense {
+impl fmt::Display for Offenses {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut cadena = format!("");
         for (offense, times) in &self.data {
@@ -55,11 +55,10 @@ impl fmt::Display for Offense {
     }
 }
 
-fn analyze(diffs:Vec<&str>) -> Offense {
+fn analyze(diffs:Vec<&str>) -> Offenses {
 //fn analyze(diffs:Vec<&str>) -> HashMap<&&str, i32> {
     let offensive_words = vec!["XXX_ME", "HACK_ME", "puts", "binding.pry"];
-    // let mut offenses = HashMap::new();
-    let mut offenses = Offense { data: HashMap::new() };
+    let mut offenses = Offenses { data: HashMap::new() };
 
     let (possible_new, _) = diffs[1].split_once(' ').unwrap();
     let start_point = if possible_new == "new" {
@@ -87,7 +86,6 @@ fn analyze(diffs:Vec<&str>) -> Offense {
 
 fn loop_files(files:Vec<&str>) -> Results {
 //fn loop_files(files:Vec<&str>) -> HashMap<&str, HashMap<&&str, i32>> {
-    // let mut results = HashMap::new();
     let mut results = Results { data: HashMap::new() };
     for file in files {
         let (_, extension) = file.rsplit_once('.').unwrap();
