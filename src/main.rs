@@ -2,10 +2,35 @@ use std::collections::HashMap;
 
 mod io;
 
-fn analyze(diffs:Vec<&str>) -> HashMap<String, i32> {
+struct Offense {
+    data: HashMap<String, i32>
+}
+
+impl Offense {
+    fn add_offense(& mut self, offense: &str) {
+        if self.data.contains_key(&offense.to_string()) {
+            self.data.insert(offense.to_string(), self.data[&offense.to_string()] + 1);
+        } else {
+            self.data.insert(offense.to_string(), 1);
+        }
+    }
+    fn is_empty(&self) -> bool {
+        self.data.is_empty()
+    }
+    fn print_data(&self) {
+        for (offense, times) in &self.data {
+            println!("  {} - {}", offense, times);
+        }
+    }
+}
+
+
+
+fn analyze(diffs:Vec<&str>) -> Offense {
 //fn analyze(diffs:Vec<&str>) -> HashMap<&&str, i32> {
     let offensive_words = vec!["XXX_ME", "HACK_ME", "puts", "binding.pry"];
-    let mut offenses = HashMap::new();
+    // let mut offenses = HashMap::new();
+    let mut offenses = Offense { data: HashMap::new() };
 
     let (possible_new, _) = diffs[1].split_once(' ').unwrap();
     let start_point = if possible_new == "new" {
@@ -23,11 +48,7 @@ fn analyze(diffs:Vec<&str>) -> HashMap<String, i32> {
 
         for offense in &offensive_words {
             if diff.contains(offense) {
-                if offenses.contains_key(&offense.to_string()) {
-                    offenses.insert(offense.to_string(), offenses[&offense.to_string()] + 1);
-                } else {
-                    offenses.insert(offense.to_string(), 1);
-                }
+                offenses.add_offense(offense);
             }
         }
     }
@@ -35,7 +56,7 @@ fn analyze(diffs:Vec<&str>) -> HashMap<String, i32> {
     offenses
 }
 
-fn loop_files(files:Vec<&str>) -> HashMap<&str, HashMap<String, i32>> {
+fn loop_files(files:Vec<&str>) -> HashMap<&str, Offense> {
 //fn loop_files(files:Vec<&str>) -> HashMap<&str, HashMap<&&str, i32>> {
     let mut results = HashMap::new();
     for file in files {
@@ -55,13 +76,11 @@ fn loop_files(files:Vec<&str>) -> HashMap<&str, HashMap<String, i32>> {
     results
 }
 
-fn show_offenses(results: HashMap<&str, HashMap<String, i32>>) {
+fn show_offenses(results: HashMap<&str, Offense>) {
     if results.is_empty() { return ; }
     for (file, offenses) in &results {
         println!("{}", file);
-        for (offense, times) in offenses {
-            println!("  {} - {}", offense, times);
-        }
+        offenses.print_data();
 
     }
 }
