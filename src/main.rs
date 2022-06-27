@@ -70,7 +70,6 @@ fn analyze(diffs:Vec<&str>) -> Offenses {
     let diffs_text = &diffs[start_point..];
     for diff in diffs_text {
         if diff.chars().nth(0).unwrap() != '+' {
-            println!("skipping because the diff was not added");
             continue;
         }
 
