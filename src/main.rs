@@ -27,7 +27,7 @@ fn analyze(diffs:Vec<&str>) -> HashMap<String, i32> {
     let diffs_text = &diffs[start_point..];
     //println!("XXX{:?}XXX", diffs_text);
     for diff in diffs_text {
-        println!("{}", diff);
+        // println!("{}", diff);
         if diff.chars().nth(0).unwrap() != '+' {
             println!("skipping because the diff was not added");
             continue;
@@ -76,9 +76,38 @@ fn loop_files(files:Vec<&str>) -> HashMap<&str, HashMap<String, i32>> {
     results
 }
 
+fn show_offenses(results: HashMap<&str, HashMap<String, i32>>) {
+    if results.is_empty() { return ; }
+    for (file, offenses) in &results {
+        /*
+        println!("{} - {:?}", file, offenses);
+        for (offense, times) in offenses {
+            println!("  {} - {}", offense, times);
+        }
+        */
+        println!("{}", file);
+        for (offense, times) in offenses {
+            println!("  {} - {}", offense, times);
+        }
+
+    }
+}
+
 fn main() {
     let s = io::get_diff_files();
     //println!("FILES: {}", s);
     let res = loop_files(s.split("\n").collect::<Vec<&str>>());
-    println!("{:?}", res);
+    show_offenses(res);
 }
+
+
+
+
+
+
+
+
+
+
+
+
