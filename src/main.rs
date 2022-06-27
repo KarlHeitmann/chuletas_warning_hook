@@ -1,21 +1,87 @@
-use std::process::{Command, Stdio};
-use std::str;
+use std::collections::HashMap;
+
+mod io;
+
+fn analyze(diffs:Vec<&str>) -> HashMap<String, i32> {
+//fn analyze(diffs:Vec<&str>) -> HashMap<&&str, i32> {
+    let offensive_words = vec!["XXX_ME", "HACK_ME", "puts", "binding.pry"];
+    let mut offenses = HashMap::new();
+
+    let (possible_new, _) = diffs[1].split_once(' ').unwrap();
+    let start_point = if possible_new == "new" {
+                          6
+                      } else {
+                          5
+                      };
+
+    let diffs_text = &diffs[start_point..];
+    for diff in diffs_text {
+        if diff.chars().nth(0).unwrap() != '+' {
+            println!("skipping because the diff was not added");
+            continue;
+        }
+
+        for offense in &offensive_words {
+            if diff.contains(offense) {
+                if offenses.contains_key(&offense.to_string()) {
+                    offenses.insert(offense.to_string(), offenses[&offense.to_string()] + 1);
+                } else {
+                    offenses.insert(offense.to_string(), 1);
+                }
+            }
+        }
+    }
+
+    offenses
+}
+
+fn loop_files(files:Vec<&str>) -> HashMap<&str, HashMap<String, i32>> {
+//fn loop_files(files:Vec<&str>) -> HashMap<&str, HashMap<&&str, i32>> {
+    let mut results = HashMap::new();
+    for file in files {
+        let (_, extension) = file.rsplit_once('.').unwrap();
+        if extension != "rb" {
+            println!("Continue because {} it is not a ruby file", file);
+            continue;
+        }
+        let diff_data = io::get_diff_file(file);
+
+        let r = analyze(diff_data.split("\n").collect::<Vec<&str>>());
+        if r.is_empty() { continue ; }
+
+        results.insert(file, r);
+    }
+
+    results
+}
+
+fn show_offenses(results: HashMap<&str, HashMap<String, i32>>) {
+    if results.is_empty() { return ; }
+    for (file, offenses) in &results {
+        println!("{}", file);
+        for (offense, times) in offenses {
+            println!("  {} - {}", offense, times);
+        }
+
+    }
+}
 
 fn main() {
-    let child = Command::new("git")
-        .args("diff --cached --name-only --diff-filter=ACM".split(' '))
-        .stdout(Stdio::piped())
-        .spawn()
-        .expect("failed to execute child");
-    let output = child
-        .wait_with_output()
-        .expect("failed to wait on child");
+    let s = io::get_diff_files();
+    if s == "" { return }
 
-    assert!(output.status.success());
-    //println!("{:?}", output.stdout);
-    let s = match str::from_utf8(&output.stdout) {
-        Ok(v) => v,
-        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-    };
-    println!("result: {}", s);
+    let res = loop_files(s.split("\n").collect::<Vec<&str>>());
+    show_offenses(res);
 }
+
+
+
+
+
+
+
+
+
+
+
+
