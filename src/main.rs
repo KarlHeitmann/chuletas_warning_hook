@@ -7,6 +7,21 @@ struct Offense {
     data: HashMap<String, i32>
 }
 
+struct Results {
+    // data: Option<HashMap<String, Offense>>
+    data: HashMap<String, Offense>
+}
+
+impl Results {
+    fn is_empty(&self) -> bool {
+        // self.data.unwrap().is_empty()
+        self.data.is_empty()
+    }
+    fn add_offense(& mut self, file: &str, offense: Offense) {
+        self.data.insert(file.to_string(), offense);
+    }
+}
+
 impl Offense {
     fn add_offense(& mut self, offense: &str) {
         if self.data.contains_key(&offense.to_string()) {
@@ -17,6 +32,16 @@ impl Offense {
     }
     fn is_empty(&self) -> bool {
         self.data.is_empty()
+    }
+}
+
+impl fmt::Display for Results {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut cadena = format!("");
+        for (file, offense) in &self.data {
+            cadena = format!("{}{}\n{}\n", cadena, file, offense)
+        }
+        write!(f, "{}", cadena)
     }
 }
 
@@ -60,9 +85,10 @@ fn analyze(diffs:Vec<&str>) -> Offense {
     offenses
 }
 
-fn loop_files(files:Vec<&str>) -> HashMap<&str, Offense> {
+fn loop_files(files:Vec<&str>) -> Results {
 //fn loop_files(files:Vec<&str>) -> HashMap<&str, HashMap<&&str, i32>> {
-    let mut results = HashMap::new();
+    // let mut results = HashMap::new();
+    let mut results = Results { data: HashMap::new() };
     for file in files {
         let (_, extension) = file.rsplit_once('.').unwrap();
         if extension != "rb" {
@@ -74,19 +100,15 @@ fn loop_files(files:Vec<&str>) -> HashMap<&str, Offense> {
         let r = analyze(diff_data.split("\n").collect::<Vec<&str>>());
         if r.is_empty() { continue ; }
 
-        results.insert(file, r);
+        results.add_offense(file, r);
     }
 
     results
 }
 
-fn show_offenses(results: HashMap<&str, Offense>) {
+fn show_offenses(results: Results) {
     if results.is_empty() { return ; }
-    for (file, offenses) in &results {
-        println!("{}", file);
-        println!("{}", offenses);
-
-    }
+    println!("{}", results);
 }
 
 fn main() {
