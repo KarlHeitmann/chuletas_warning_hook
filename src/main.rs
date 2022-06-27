@@ -1,38 +1,12 @@
 use std::collections::HashMap;
-use std::fmt;
 
 mod io;
-mod offenses;
+mod data_structs;
 
-struct Results {
-    // data: Option<HashMap<String, offenses::Offenses>>
-    data: HashMap<String, offenses::Offenses>
-}
-
-impl Results {
-    fn is_empty(&self) -> bool {
-        // self.data.unwrap().is_empty()
-        self.data.is_empty()
-    }
-    fn add_offense(& mut self, file: &str, offense: offenses::Offenses) {
-        self.data.insert(file.to_string(), offense);
-    }
-}
-
-impl fmt::Display for Results {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut cadena = format!("OFFENSES FOUND:\n");
-        for (file, offense) in &self.data {
-            cadena = format!("{}{}\n{}\n", cadena, file, offense)
-        }
-        write!(f, "{}", cadena)
-    }
-}
-
-fn analyze(diffs:Vec<&str>) -> offenses::Offenses {
+fn analyze(diffs:Vec<&str>) -> data_structs::Offenses {
 //fn analyze(diffs:Vec<&str>) -> HashMap<&&str, i32> {
     let offensive_words = vec!["XXX_ME", "HACK_ME", "puts", "binding.pry"];
-    let mut offenses = offenses::Offenses { data: HashMap::new() };
+    let mut offenses = data_structs::Offenses { data: HashMap::new() };
 
     let (possible_new, _) = diffs[1].split_once(' ').unwrap();
     let start_point = if possible_new == "new" {
@@ -57,9 +31,9 @@ fn analyze(diffs:Vec<&str>) -> offenses::Offenses {
     offenses
 }
 
-fn loop_files(files:Vec<&str>) -> Results {
+fn loop_files(files:Vec<&str>) -> data_structs::Results {
 //fn loop_files(files:Vec<&str>) -> HashMap<&str, HashMap<&&str, i32>> {
-    let mut results = Results { data: HashMap::new() };
+    let mut results = data_structs::Results { data: HashMap::new() };
     for file in files {
         let (_, extension) = file.rsplit_once('.').unwrap();
         if extension != "rb" {
@@ -77,7 +51,7 @@ fn loop_files(files:Vec<&str>) -> Results {
     results
 }
 
-fn show_offenses(results: Results) {
+fn show_offenses(results: data_structs::Results) {
     if results.is_empty() { return ; } // use matcher
     println!("{}", results);
 }
