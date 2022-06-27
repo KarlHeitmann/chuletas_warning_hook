@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt;
 
 mod io;
 
@@ -17,14 +18,17 @@ impl Offense {
     fn is_empty(&self) -> bool {
         self.data.is_empty()
     }
-    fn print_data(&self) {
-        for (offense, times) in &self.data {
-            println!("  {} - {}", offense, times);
-        }
-    }
 }
 
-
+impl fmt::Display for Offense {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut cadena = format!("");
+        for (offense, times) in &self.data {
+            cadena = format!("{}  {} - {}\n", cadena, offense, times)
+        }
+        write!(f, "{}", cadena)
+    }
+}
 
 fn analyze(diffs:Vec<&str>) -> Offense {
 //fn analyze(diffs:Vec<&str>) -> HashMap<&&str, i32> {
@@ -80,7 +84,7 @@ fn show_offenses(results: HashMap<&str, Offense>) {
     if results.is_empty() { return ; }
     for (file, offenses) in &results {
         println!("{}", file);
-        offenses.print_data();
+        println!("{}", offenses);
 
     }
 }
